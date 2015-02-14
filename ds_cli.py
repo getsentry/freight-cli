@@ -18,7 +18,7 @@ class Api(object):
 
     def build_session(self):
         session = requests.Session()
-        s.headers.update({'Authorization': 'Key {}'.format(self.api_key)})
+        session.headers.update({'Authorization': 'Key {}'.format(self.api_key)})
         return session
 
     delete = lambda url, *a, **k: self.session.delete(self.base_url + '/' + url, *a, **k)
@@ -29,7 +29,7 @@ class Api(object):
 
 @click.group()
 @click.option('--api-key', required=True, envvar='DS_API_KEY')
-@click.option('--base-url', required=True, envvar='DS_URL')
+@click.option('--base-url', required=True, envvar='DS_BASE_URL')
 @click.option('--user', required=True, envvar='DS_USER')
 @click.option('--debug/--no-debug', default=False)
 @click.pass_context
@@ -48,7 +48,6 @@ def deploy(api, app, env, ref):
         'ref': ref,
         'user': config.user
     })
-
 
 
 if __name__ == '__main__':
