@@ -81,13 +81,12 @@ def cli(api, base_url, api_key, user, debug):
 @click.argument('ref', default='master')
 @pass_api
 def deploy(api, app, env, ref):
-    response = api.post('/tasks/', {
+    data = api.post('/tasks/', {
         'app': app,
         'env': env,
         'ref': ref,
         'user': api.user
     })
-    data = response.json()
     print('Created new Task with ID = {}'.format(data['id']))
 
 
