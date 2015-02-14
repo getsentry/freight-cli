@@ -21,10 +21,12 @@ class Api(object):
         session.headers.update({'Authorization': 'Key {}'.format(self.api_key)})
         return session
 
-    delete = lambda url, *a, **k: self.session.delete(self.base_url + '/' + url, *a, **k)
-    get = lambda url, *a, **k: self.session.get(self.base_url + '/' + url, *a, **k)
-    post = lambda url, *a, **k: self.session.post(self.base_url + '/' + url, *a, **k)
-    put = lambda url, *a, **k: self.session.put(self.base_url + '/' + url, *a, **k)
+    delete = lambda s, url, *a, **k: s.session.delete(s.base_url + '/' + url, *a, **k)
+    get = lambda s, url, *a, **k: s.session.get(s.base_url + '/' + url, *a, **k)
+    post = lambda s, url, *a, **k: s.session.post(s.base_url + '/' + url, *a, **k)
+    put = lambda s, url, *a, **k: s.session.put(s.base_url + '/' + url, *a, **k)
+
+pass_api = click.make_pass_decorator(Api)
 
 
 @click.group()
@@ -41,12 +43,13 @@ def cli(ctx, base_url, api_key, user, debug):
 @click.argument('app', required=True)
 @click.argument('env', default='production')
 @click.argument('ref', default='master')
+@pass_api
 def deploy(api, app, env, ref):
     api.post('/tasks/', {
         'app': app,
         'env': env,
         'ref': ref,
-        'user': config.user
+        'user': api.user
     })
 
 
