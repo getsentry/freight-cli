@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import click
 import requests
@@ -43,6 +43,7 @@ class Api(object):
         data = resp.json()
         if 200 >= resp.status_code < 300:
             return data
+
         raise ApiError(
             code=resp.status_code,
             error=data['error'],
@@ -86,7 +87,26 @@ def deploy(api, app, env, ref):
         'user': api.user
     })
     data = response.json()
-    print 'Created new Task with ID = {}'.format(data['id'])
+    print('Created new Task with ID = {}'.format(data['id']))
+
+
+@cli.command()
+@click.argument('task-id', required=True)
+@pass_api
+def status(api, task_id):
+    data = api.get('/tasks/{}/'.format(task_id))
+    row = '{:12} {:25}'
+    print('[{app}/{env} #{number}]'.format(
+        app=data['app']['name'],
+        number=data['number'],
+        env=data['environment'],
+        id=data['id']
+    ))
+    print(row.format('Status:', data['status']))
+    print(row.format('Created:', data['dateCreated']))
+    if data['status'] in ('finished', 'failed'):
+        print(row.format('Started:', data['dateStarted']))
+        print(row.format('Finished:', data['dateFinished']))
 
 
 if __name__ == '__main__':
