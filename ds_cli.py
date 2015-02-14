@@ -41,7 +41,8 @@ class Api(object):
             )
 
         data = resp.json()
-        if 200 >= resp.status_code < 300:
+
+        if 200 <= resp.status_code < 300:
             return data
 
         raise ApiError(
