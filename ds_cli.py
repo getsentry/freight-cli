@@ -81,7 +81,7 @@ def cli(api, base_url, api_key, user, debug):
 @click.argument('app', required=True)
 @click.option('--env', default='production')
 @click.option('--ref', default='master')
-@click.option('--force', default=False)
+@click.option('--force', '-f', default=False, is_flag=True)
 @pass_api
 def deploy(api, app, env, ref, force):
     data = api.post('/tasks/', {
@@ -115,8 +115,10 @@ def status(api, task_id):
 
 @cli.command()
 @click.argument('task-id', required=True)
+@click.option('--follow', '-f', is_flag=True, default=False)
+@click.option('--interval', '-i', default=0.1)
 @pass_api
-def tail(api, task_id):
+def tail(api, task_id, follow, interval):
     data = api.get('/tasks/{}/log/?offset=-1&limit=1000'.format(task_id))
     offset = data['nextOffset']
     if not data['text']:
@@ -127,7 +129,7 @@ def tail(api, task_id):
         data = api.get('/tasks/{}/log/?offset={}'.format(task_id, offset))
         offset = data['nextOffset']
         sys.stdout.write(data['text'])
-        sleep(0.5)
+        sleep(interval)
 
 
 if __name__ == '__main__':
