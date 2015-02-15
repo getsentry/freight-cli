@@ -3,7 +3,8 @@ from __future__ import absolute_import, print_function
 import click
 import requests
 
-from functools import partial
+from time import sleep
+
 
 class ApiError(Exception):
     def __init__(self, code, error=None, error_name=None):
@@ -109,6 +110,20 @@ def status(api, task_id):
     if data['status'] in ('finished', 'failed'):
         print(row.format('Started:', data['dateStarted']))
         print(row.format('Finished:', data['dateFinished']))
+
+
+@cli.command()
+@click.argument('task-id', required=True)
+@pass_api
+def tail(api, task_id):
+    data = api.get('/tasks/{}/log/?offset=-1&limit=1000'.format(task_id))
+    offset = data['nextOffset']
+    print(data['text'])
+    while True:
+        data = api.get('/tasks/{}/log/?offset={}'.format(task_id, offset))
+        offset = data['nextOffset']
+        print(data['text'])
+        sleep(0.5)
 
 
 if __name__ == '__main__':
