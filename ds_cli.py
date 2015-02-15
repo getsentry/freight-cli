@@ -48,7 +48,7 @@ class Api(object):
 
         raise ApiError(
             code=resp.status_code,
-            error=data['error'],
+            error=data.get('error', ''),
             error_name=data.get('error_name'),
         )
 
