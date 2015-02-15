@@ -119,7 +119,10 @@ def status(api, task_id):
 def tail(api, task_id):
     data = api.get('/tasks/{}/log/?offset=-1&limit=1000'.format(task_id))
     offset = data['nextOffset']
-    sys.stdout.write(data['text'])
+    if not data['text']:
+        sys.stdout.write('(waiting for output..)\n')
+    else:
+        sys.stdout.write(data['text'])
     while True:
         data = api.get('/tasks/{}/log/?offset={}'.format(task_id, offset))
         offset = data['nextOffset']
