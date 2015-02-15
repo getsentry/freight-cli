@@ -77,9 +77,9 @@ def cli(api, base_url, api_key, user, debug):
 
 @cli.command()
 @click.argument('app', required=True)
-@click.argument('--env', default='production')
-@click.argument('--ref', default='master')
-@click.argument('--force', default=False)
+@click.option('--env', default='production')
+@click.option('--ref', default='master')
+@click.option('--force', default=False)
 @pass_api
 def deploy(api, app, env, ref, force):
     data = api.post('/tasks/', {
