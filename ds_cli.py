@@ -86,7 +86,7 @@ def deploy(api, app, env, ref, force):
         'app': app,
         'env': env,
         'ref': ref,
-        'user': api.user
+        'user': api.user,
         'force': force,
     })
     print('Created new Task with ID = {}'.format(data['id']))
