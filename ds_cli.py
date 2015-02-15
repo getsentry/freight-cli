@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 
 import click
 import requests
+import sys
 
 from time import sleep
 
@@ -118,11 +119,11 @@ def status(api, task_id):
 def tail(api, task_id):
     data = api.get('/tasks/{}/log/?offset=-1&limit=1000'.format(task_id))
     offset = data['nextOffset']
-    print(data['text'])
+    sys.stdout.write(data['text'])
     while True:
         data = api.get('/tasks/{}/log/?offset={}'.format(task_id, offset))
         offset = data['nextOffset']
-        print(data['text'])
+        sys.stdout.write(data['text'])
         sleep(0.5)
 
 
