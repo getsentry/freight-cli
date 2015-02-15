@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import click
+import json
 import requests
 import sys
 
@@ -28,13 +29,18 @@ class Api(object):
         if self._session is not None:
             return self._session
         session = requests.Session()
-        session.headers.update({'Authorization': 'Key {}'.format(self.api_key)})
+        session.headers.update({
+            'Content-Type': 'application/json',
+            'Authorization': 'Key {}'.format(self.api_key),
+        })
         self._session = session
         return session
 
-    def request(self, method, path, *args, **kwargs):
+    def request(self, method, path, body=None, *args, **kwargs):
         full_url = self.base_url + path
-        resp = getattr(self.session, method.lower())(full_url, *args, **kwargs)
+        if body:
+            body = json.dumps(body)
+        resp = getattr(self.session, method.lower())(full_url, body, *args, **kwargs)
         content_type = resp.headers['Content-Type']
         if content_type != 'application/json':
             raise ApiError(
