@@ -1,7 +1,6 @@
 from __future__ import absolute_import, print_function
 
 import click
-import json
 import requests
 import sys
 
@@ -30,17 +29,25 @@ class Api(object):
             return self._session
         session = requests.Session()
         session.headers.update({
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'ds-cli',
             'Authorization': 'Key {}'.format(self.api_key),
         })
         self._session = session
         return session
 
-    def request(self, method, path, body=None, *args, **kwargs):
+    def request(self, method, path, json=None, *args, **kwargs):
         full_url = self.base_url + path
-        if body:
-            body = json.dumps(body)
-        resp = getattr(self.session, method.lower())(full_url, body, *args, **kwargs)
+
+        if json:
+            assert method != 'GET'
+            kwargs['json'] = json
+            # TODO(dcramer): flask errors out right now if we send an empty
+            # JSON body
+            kwargs['headers'] = {'Content-Type': 'application/json'}
+
+        resp = getattr(self.session, method.lower())(full_url, *args, **kwargs)
+
         content_type = resp.headers['Content-Type']
         if content_type != 'application/json':
             raise ApiError(
