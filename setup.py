@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 """
-ds-cli
-======
+freight-cli
+===========
+
+This is a command line interface to `Freight <https://github.com/getsentry/freight>`_.
 
 :copyright: (c) 2015 GetSentry LLC
 :license: Apache 2.0, see LICENSE for more details.
@@ -42,12 +44,12 @@ install_requires = [
 ]
 
 setup(
-    name='ds-cli',
+    name='freight-cli',
     version='0.0.0',
     author='David Cramer',
     author_email='dcramer@gmail.com',
-    url='https://github.com/getsentry/ds-cli',
-    description='A client for DS',
+    url='https://github.com/getsentry/freight-cli',
+    description='A command line interface to Freight',
     long_description=open('README.md').read(),
     packages=find_packages(exclude=['tests']),
     zip_safe=False,
@@ -57,7 +59,7 @@ setup(
     },
     entry_points='''
         [console_scripts]
-        ds-cli=ds_cli:cli
+        freight=freight_cli:cli
     ''',
     license='Apache 2.0',
     include_package_data=True,

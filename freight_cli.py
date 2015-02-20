@@ -30,7 +30,7 @@ class Api(object):
         session = requests.Session()
         session.headers.update({
             'Accept': 'application/json',
-            'User-Agent': 'ds-cli',
+            'User-Agent': 'freight-cli',
             'Authorization': 'Key {}'.format(self.api_key),
         })
         self._session = session
@@ -76,7 +76,7 @@ pass_api = click.make_pass_decorator(Api, ensure=True)
 
 
 @click.group(context_settings={
-    'auto_envvar_prefix': 'DS',
+    'auto_envvar_prefix': 'FREIGHT',
 })
 @click.option('--api-key', required=True)
 @click.option('--base-url', required=True)
