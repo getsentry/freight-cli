@@ -145,5 +145,13 @@ def tail(api, task_id, follow, interval):
         sleep(interval)
 
 
+@cli.command()
+@click.argument('task-id', required=True)
+@pass_api
+def cancel(api, task_id):
+    data = api.put('/tasks/{}/'.format(task_id), {'status': 'cancelled'})
+    print('Task (ID = {}) was cancelled.'.format(data['id']))
+
+
 if __name__ == '__main__':
     cli()
