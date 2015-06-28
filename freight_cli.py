@@ -1,11 +1,15 @@
 from __future__ import absolute_import, print_function
 
 import click
+import re
 import requests
 import sys
 
+from collections import namedtuple
 from time import sleep
 
+
+Task = namedtuple('Task', ['app', 'env', 'number'])
 
 class ApiError(Exception):
     def __init__(self, code, error=None, error_name=None):
@@ -16,6 +20,8 @@ class ApiError(Exception):
 
 
 class Api(object):
+    _task_id_re = re.compile(r'^([^/]+)/([^#]+)#(\d+)$')
+
     def __init__(self):
         self.base_url = None
         self.api_key = None
@@ -35,6 +41,12 @@ class Api(object):
         })
         self._session = session
         return session
+
+    def parse_task_id(self, task_id):
+        match = self._task_id_re.match(task_id)
+        if not match:
+            raise ValueError('Task ID must be in format <app>/<env>#<number>')
+        return Task(app=match.group(1), env=match.group(2), number=match.group(3))
 
     def request(self, method, path, json=None, *args, **kwargs):
         full_url = self.base_url + path
@@ -111,7 +123,8 @@ def deploy(api, app, env, ref, force):
 @click.argument('task-id', required=True)
 @pass_api
 def status(api, task_id):
-    data = api.get('/tasks/{}/'.format(task_id))
+    task = api.parse_task_id(task_id)
+    data = api.get('/tasks/{}/{}/{}/'.format(task.app, task.env, task.number))
     row = '{:12} {:25}'
     print('[{app}/{env} #{number}]'.format(
         app=data['app']['name'],
@@ -132,14 +145,19 @@ def status(api, task_id):
 @click.option('--interval', '-i', default=0.1)
 @pass_api
 def tail(api, task_id, follow, interval):
-    data = api.get('/tasks/{}/log/?offset=-1&limit=1000'.format(task_id))
+    task = api.parse_task_id(task_id)
+    data = api.get('/tasks/{}/{}/{}/log/?offset=-1&limit=1000'.format(
+        task.app, task.env, task.number
+    ))
     offset = data['nextOffset']
     if not data['text']:
         sys.stdout.write('(waiting for output..)\n')
     else:
         sys.stdout.write(data['text'])
     while True:
-        data = api.get('/tasks/{}/log/?offset={}'.format(task_id, offset))
+        data = api.get('/tasks/{}/{}/{}/log/?offset={}'.format(
+            task.app, task.env, task.number, offset
+        ))
         offset = data['nextOffset']
         sys.stdout.write(data['text'])
         sleep(interval)
@@ -149,7 +167,10 @@ def tail(api, task_id, follow, interval):
 @click.argument('task-id', required=True)
 @pass_api
 def cancel(api, task_id):
-    data = api.put('/tasks/{}/'.format(task_id), {'status': 'cancelled'})
+    task = api.parse_task_id(task_id)
+    data = api.put('/tasks/{}/{}/{}/'.format(
+        task.app, task.env, task.number
+    ), {'status': 'cancelled'})
     print('Task (ID = {}) was cancelled.'.format(data['id']))
 
 
