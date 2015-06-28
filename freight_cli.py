@@ -104,18 +104,21 @@ def cli(api, base_url, api_key, user, debug):
 
 @cli.command()
 @click.argument('app', required=True)
-@click.option('--env', default='production')
-@click.option('--ref', default='master')
+@click.option('--env', default=None)
+@click.option('--ref', default=None)
 @click.option('--force', '-f', default=False, is_flag=True)
 @pass_api
 def deploy(api, app, env, ref, force):
-    data = api.post('/tasks/', {
+    params = {
         'app': app,
-        'env': env,
-        'ref': ref,
         'user': api.user,
         'force': force,
-    })
+    }
+    if env:
+        params['env'] = env
+    if ref:
+        params['ref'] = ref
+    data = api.post('/tasks/', params)
     print('Created new Task: {}'.format(data.get('name', data['id'])))
 
 
