@@ -116,7 +116,7 @@ def deploy(api, app, env, ref, force):
         'user': api.user,
         'force': force,
     })
-    print('Created new Task with ID = {}'.format(data['id']))
+    print('Created new Task: {}'.format(data.get('name', data['id'])))
 
 
 @cli.command()
