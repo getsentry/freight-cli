@@ -104,8 +104,8 @@ def cli(api, base_url, api_key, user, debug):
 
 @cli.command()
 @click.argument('app', required=True)
-@click.option('--env', default=None)
-@click.option('--ref', default=None)
+@click.option('--env', '-e', '--environment', default=None)
+@click.option('--ref', '-r', default=None)
 @click.option('--force', '-f', default=False, is_flag=True)
 @pass_api
 def deploy(api, app, env, ref, force):
