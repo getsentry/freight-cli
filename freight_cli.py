@@ -4,12 +4,14 @@ import click
 import re
 import requests
 import sys
+import json
 
 from collections import namedtuple
 from time import sleep
 
 
 Task = namedtuple('Task', ['app', 'env', 'number'])
+
 
 class ApiError(Exception):
     def __init__(self, code, error=None, error_name=None):
@@ -175,6 +177,66 @@ def cancel(api, task_id):
         task.app, task.env, task.number
     ), {'status': 'cancelled'})
     print('Task (ID = {}) was cancelled.'.format(data['id']))
+
+
+@cli.group()
+def app():
+    pass
+
+
+@app.command('list')
+@pass_api
+def app_list(api):
+    data = api.get('/apps/')
+    json.dump(data, sys.stdout, indent=2)
+    sys.stdout.write('\n')
+
+
+@app.command('show')
+@click.argument('app', required=True)
+@pass_api
+def app_show(api, app):
+    data = api.get('/apps/{}/'.format(app))
+    json.dump(data, sys.stdout, indent=2)
+    sys.stdout.write('\n')
+
+
+@app.command('create')
+@click.argument('name', required=True)
+@click.option('--repository', prompt=True)
+@click.option('--provider', default='shell', prompt=True)
+@click.option('--config', default='{}', prompt=True)
+@pass_api
+def app_create(api, name, repository, provider, config):
+    params = {
+        'name': name,
+        'repository': repository,
+        'provider': provider,
+        'provider_config': config,
+    }
+    api.post('/apps/', params)
+    print('Created new App: {}'.format(name))
+
+
+@app.command('edit')
+@click.argument('app', required=True)
+@pass_api
+def app_edit(api, app):
+    data = api.get('/apps/{}/'.format(app))
+    # id isn't editable
+    data.pop('id')
+    rv = click.edit(json.dumps(data, indent=2)+'\n')
+    if rv is None:
+        return
+    rv = json.loads(rv)
+    params = {}
+    for k, v in rv.iteritems():
+        if isinstance(v, (list, dict)):
+            params[k] = json.dumps(v)
+        else:
+            params[k] = v
+    api.put('/apps/{}/'.format(app), params)
+    print('App {} was updated.'.format(app))
 
 
 if __name__ == '__main__':
