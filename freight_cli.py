@@ -120,8 +120,8 @@ def deploy(api, app, env, ref, force):
         params['env'] = env
     if ref:
         params['ref'] = ref
-    data = api.post('/tasks/', params)
-    print('Created new Task: {}'.format(data.get('name', data['id'])))
+    data = api.post('/deploys/', params)
+    print('Created new Deploy: {}'.format(data.get('name', data['id'])))
 
 
 @cli.command()
@@ -129,7 +129,7 @@ def deploy(api, app, env, ref, force):
 @pass_api
 def status(api, task_id):
     task = api.parse_task_id(task_id)
-    data = api.get('/tasks/{}/{}/{}/'.format(task.app, task.env, task.number))
+    data = api.get('/deploys/{}/{}/{}/'.format(task.app, task.env, task.number))
     row = '{:12} {:25}'
     print('[{app}/{env} #{number}]'.format(
         app=data['app']['name'],
@@ -151,7 +151,7 @@ def status(api, task_id):
 @pass_api
 def tail(api, task_id, follow, interval):
     task = api.parse_task_id(task_id)
-    data = api.get('/tasks/{}/{}/{}/log/?offset=-1&limit=1000'.format(
+    data = api.get('/deploys/{}/{}/{}/log/?offset=-1&limit=1000'.format(
         task.app, task.env, task.number
     ))
     offset = data['nextOffset']
@@ -160,7 +160,7 @@ def tail(api, task_id, follow, interval):
     else:
         sys.stdout.write(data['text'])
     while True:
-        data = api.get('/tasks/{}/{}/{}/log/?offset={}'.format(
+        data = api.get('/deploys/{}/{}/{}/log/?offset={}'.format(
             task.app, task.env, task.number, offset
         ))
         offset = data['nextOffset']
@@ -173,10 +173,10 @@ def tail(api, task_id, follow, interval):
 @pass_api
 def cancel(api, task_id):
     task = api.parse_task_id(task_id)
-    data = api.put('/tasks/{}/{}/{}/'.format(
+    data = api.put('/deploys/{}/{}/{}/'.format(
         task.app, task.env, task.number
     ), {'status': 'cancelled'})
-    print('Task (ID = {}) was cancelled.'.format(data['id']))
+    print('Deploy (ID = {}) was cancelled.'.format(data['id']))
 
 
 @cli.group()
