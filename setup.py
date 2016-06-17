@@ -40,7 +40,7 @@ tests_require = [
 
 install_requires = [
     'click>=3.3.0,<7.0.0',
-    'requests>=2.5.1,<2.8.0',
+    'requests>=2.5.1,<3.0.0',
 ]
 
 setup(
