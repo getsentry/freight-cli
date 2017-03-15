@@ -239,5 +239,15 @@ def app_edit(api, app):
     print('App {} was updated.'.format(app))
 
 
+@app.command('delete')
+@click.argument('app', required=True)
+@pass_api
+def app_delete(api, app):
+    click.confirm('Are you sure you want to delete \'%s\'?' % app, abort=True)
+    data = api.delete('/apps/{}/'.format(app))
+    json.dump(data, sys.stdout, indent=2)
+    sys.stdout.write('\n')
+
+
 if __name__ == '__main__':
     cli()
