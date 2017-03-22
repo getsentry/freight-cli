@@ -249,5 +249,32 @@ def app_delete(api, app):
     sys.stdout.write('\n')
 
 
+@cli.group()
+def webhook():
+    pass
+
+
+@webhook.command('create')
+@click.option('--hook', default='github', prompt=True)
+@click.option('--action', default='deploy', prompt=True)
+@click.option('--app', prompt=True)
+@click.option('--env', prompt=True)
+@pass_api
+def webhook_create(api, hook, action, app, env):
+    import hmac
+    from hashlib import sha256
+    from urlparse import urlsplit
+
+    key = '{}/{}/{}/{}'.format(
+        hook, action, app, env,
+    )
+    base_url = '{}://{}'.format(*urlsplit(api.base_url)[:2])
+    print('{}/webhooks/{}/{}/'.format(
+        base_url,
+        key,
+        hmac.new(api.api_key.encode('utf8'), key, sha256).hexdigest(),
+    ))
+
+
 if __name__ == '__main__':
     cli()
