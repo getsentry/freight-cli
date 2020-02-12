@@ -5,7 +5,6 @@ from collections import namedtuple
 from time import sleep
 from urllib.parse import urlsplit
 
-import certifi
 import click
 from urllib3.connectionpool import connection_from_url
 
@@ -35,7 +34,11 @@ class Api(object):
     def session(self):
         if self._session is not None:
             return self._session
-        session = connection_from_url(self.base_url, ca_certs=certifi.where())
+        session = connection_from_url(self.base_url)
+        if session.scheme == "https":
+            import certifi
+
+            session.ca_certs = certifi.where()
         session.headers.update(
             {
                 "Accept": "application/json",
