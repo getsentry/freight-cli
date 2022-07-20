@@ -35,10 +35,6 @@ class Api(object):
         if self._session is not None:
             return self._session
         session = connection_from_url(self.base_url)
-        if session.scheme == "https":
-            import certifi
-
-            session.ca_certs = certifi.where()
         session.headers.update(
             {
                 "Accept": "application/json",

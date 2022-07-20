@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-install_requires = ["click>=7,<7.1", "urllib3[secure]>=1.25,<1.26"]
+install_requires = ["click", "urllib3==1.26.10"]
 
 setup(
     name="freight-cli",
