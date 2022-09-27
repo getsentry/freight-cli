@@ -240,7 +240,7 @@ def app_edit(api, app):
     data = api.get(f"/apps/{app}/")
     # id isn't editable
     data.pop("id")
-    rv = click.edit(json.dumps(data, indent=2) + "\n")
+    rv = click.edit(json.dumps(data, indent=2) + "\n", extension=".json")
     if rv is None:
         return
     rv = json.loads(rv)
